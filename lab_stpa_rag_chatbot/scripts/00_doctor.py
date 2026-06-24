@@ -5,9 +5,12 @@ import platform
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
+import sys
 
-REQUIRED_PATHS = [Path("data/raw/STPA_Handbook.pdf"), Path("requirements.txt"), Path(".env")]
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from app.env_config import LAB_ROOT, REPO_ROOT, load_project_env
+
+REQUIRED_PATHS = [Path("data/raw/STPA_Handbook.pdf"), Path("requirements.txt")]
 
 
 def check_import(name: str) -> bool:
@@ -19,7 +22,7 @@ def check_import(name: str) -> bool:
 
 
 def main() -> None:
-    load_dotenv()
+    load_project_env()
     print("Python:", sys.version)
     print("Platform:", platform.platform())
     print("Working directory:", Path.cwd())
@@ -29,8 +32,11 @@ def main() -> None:
     print("\nPackages:")
     for pkg in ["openai", "chromadb", "streamlit", "dotenv", "pypdf", "tiktoken"]:
         print(f"  {'OK ' if check_import(pkg) else 'MISS'} {pkg}")
+    print(f"  repo .env: {'OK' if (REPO_ROOT / '.env').exists() else 'MISS'} {REPO_ROOT / '.env'}")
+    print(f"  lab .env:  {'OK' if (LAB_ROOT / '.env').exists() else 'MISS'} {LAB_ROOT / '.env'}")
     print("\nEnvironment:")
     print("  OPENAI_API_KEY:", "OK" if os.getenv("OPENAI_API_KEY") else "MISSING")
+    print("  OPENROUTER_API_KEY:", "OK" if os.getenv("OPENROUTER_API_KEY") else "MISSING")
     print("  OPENAI_CHAT_MODEL:", os.getenv("OPENAI_CHAT_MODEL", "not set"))
     print("  OPENAI_EMBED_MODEL:", os.getenv("OPENAI_EMBED_MODEL", "not set"))
     if not Path("data/raw/STPA_Handbook.pdf").exists():

@@ -6,16 +6,17 @@ from pathlib import Path
 
 import chromadb
 import sys
-from dotenv import load_dotenv
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from app.env_config import load_project_env
 from app.rag_core import embed_texts
 
-load_dotenv()
+load_project_env()
 CHILDREN_PATH = Path("data/parsed/children.jsonl")
 CHROMA_PATH = os.getenv("CHROMA_PATH", "data/index/chroma")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "stpa_handbook_children")
-BATCH_SIZE = 64
+BATCH_SIZE = int(os.getenv("OFFLINE_EMBED_BATCH_SIZE", "8")) if os.getenv(
+    "ALLOW_OFFLINE_EMBED", ""
+).lower() in ("1", "true", "yes") else 64
 
 
 def load_jsonl(path: Path) -> list[dict]:

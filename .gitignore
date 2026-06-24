@@ -1,8 +1,15 @@
 .env
 .venv/
 __pycache__/
+*.pyc
+
+# Lab runtime artifacts
 lab_stpa_rag_chatbot/.venv/
 lab_stpa_rag_chatbot/data/index/chroma/
-lab_stpa_rag_chatbot/eval_output.txt
+lab_stpa_rag_chatbot/smoke_output.txt
+
+# Regenerable extracts
 docs/_extract_tutorial.txt
-*.pyc
+
+# Obsidian local state
+rag-avancado/.obsidian/workspace.json

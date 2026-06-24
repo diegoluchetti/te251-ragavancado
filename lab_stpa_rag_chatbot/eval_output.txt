@@ -1,124 +1,102 @@
-ponytail: OpenAI embed failed (Connection error.); using local MiniLM for dev only.
-
-Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
-Loading weights: 100%|##########| 103/103 [00:00<00:00, 16925.11it/s]
-BertModel LOAD REPORT from: sentence-transformers/all-MiniLM-L6-v2
-Key                     | Status     |  | 
-------------------------+------------+--+-
-embeddings.position_ids | UNEXPECTED |  | 
-
-Notes:
-- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
-ponytail: OpenAI chat failed (Connection error.); using Ollama llama3.2:1b.
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
 
 === q01 What is the purpose of STPA?
-**O que Θ o STPA?**
+O prop≤sito do STPA (System-Theoretic Process Analysis) Θ fornecer uma tΘcnica de anßlise de perigos baseada em um modelo estendido de causalidade de acidentes, que vai alΘm da simples falha de componentes para incluir interaτ⌡es inseguras entre componentes do sistema, mesmo que nenhum deles tenha falhado. O STPA pode ser usado desde as fases iniciais de desenvolvimento do conceito do sistema para gerar requisitos de seguranτa de alto nφvel, que sπo refinados ao longo do desenvolvimento do sistema, auxiliando no design da arquitetura e no desenvolvimento detalhado. Ele promove a rastreabilidade durante todo o processo de desenvolvimento, permitindo que decis⌡es e designs sejam alterados com mφnimo retrabalho.
 
-**Contexto:**
-O STPA (System-Theoretic Process Analysis) Θ uma tΘcnica de anßlise de riscos e seguranτa que assume que as acidentes podem ser causados por falhas nπo previstas em componentes ou sistemas, alΘm das falhas do sistema como um todo.
+AlΘm disso, o STPA Θ capaz de analisar sistemas muito complexos, incluindo software e operadores humanos, identificando cenßrios causais que mΘtodos tradicionais nπo detectam, especialmente relacionados a software e interaτ⌡es nπo falhas. Ele pode ser integrado ao processo padrπo de engenharia de sistemas e α engenharia baseada em modelos, e Θ aplicßvel a propriedades emergentes do sistema alΘm da seguranτa, como seguranτa cibernΘtica.
 
-**ReferΩncias:**
+Em resumo, o STPA tem como objetivo identificar e controlar perigos e riscos de forma abrangente e precoce no ciclo de vida do sistema, melhorando a seguranτa, a confiabilidade e a eficßcia do sistema desde o conceito atΘ a operaτπo.
 
-* [Fonte 1: STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 51-52 | parent_id: stpa_p051_052]
-+ "Control action is not applied or received by the controlled process but the process responds as if the control action had been applied or received"
-* [Fonte 2: STPA_Handbook.pdf | seτπo: Causal Scenarios | pßginas: 3-4 | parent_id: stpa_p003_004]
-+ "STPA pode ser usada em qualquer propriedade emergente no sistema engenheiro, nπo apenas na seguranτa"
-* [Fonte 3: STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 55-56 | parent_id: stpa_p055_056]
-+ "Safety and security concerns sπo consideradas desde o inφcio da concepτπo de sistema"
+ReferΩncias:  
+- STPA_Handbook.pdf, seτπo "Control Structure", pßginas 55-56  
+- STPA_Handbook.pdf, seτπo "Causal Scenarios", pßginas 3-4
 Sources:
- - Control Structure 51 52
- - Causal Scenarios 3 4
  - Control Structure 55 56
-ponytail: OpenAI embed failed (Connection error.); using local MiniLM for dev only.
-ponytail: OpenAI chat failed (Connection error.); using Ollama llama3.2:1b.
+ - Unsafe Control Actions 69 70
+ - Causal Scenarios 3 4
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
 
 === q02 What is an unsafe control action?
-**UCA-2: BSCU Autobrake provides Brake command during a normal takeoff**
+Um Unsafe Control Action (UCA), ou Aτπo de Controle Insegura, Θ uma aτπo de controle que, em um contexto especφfico e no pior cenßrio ambiental, pode levar a um perigo (hazard). O termo "inseguro" refere-se aos perigos identificados na anßlise STPA, que podem incluir nπo apenas riscos tradicionais α seguranτa, como perda de vidas ou ferimentos, mas tambΘm perdas mais amplas, como perda de missπo, desempenho ou danos ambientais.
 
-Este UCA (Control Action) Θ considerado inapropriado porque pode levar a um perigo. Considerando o contexto, onde ocorre na seτπo 9 do Handbook STPA, Θ possφvel identificar a razπo pelas quais o UCA Θ considerado inapropriado.
+Existem quatro formas pelas quais uma aτπo de controle pode ser insegura:
+1. Nπo fornecer a aτπo de controle leva a um perigo.
+2. Fornecer a aτπo de controle leva a um perigo.
+3. Fornecer uma aτπo de controle potencialmente segura, mas muito cedo, muito tarde ou na ordem errada.
+4. A aτπo de controle dura tempo demais ou Θ interrompida cedo demais (para aτ⌡es contφnuas, nπo discretas).
 
-O UCA-2: BSCU Autobrake, que fornece uma "Brake command durante um decolagem normal", pode levar a perigos em vßrios contextos. Por exemplo:
+AlΘm disso, o contexto em que a aτπo de controle Θ fornecida Θ fundamental para determinar se ela Θ insegura. Por exemplo, uma aτπo de controle pode ser segura em uma situaτπo, mas insegura em outra. Portanto, cada UCA deve especificar claramente o contexto que a torna insegura.
 
-1.  **Inadequaτπo da condiτπo do decolamento**: Se o UCA-2 nπo for fornecido antes do momento ideal para o lanτamento, o pilot pode acabar usando a "Brake command" quando Θ ineficaz.
-2.  **Sobrecarga de sistemas**: Se o UCA-2 for enviado por um controller que jß estß sobrecarregado com outras tarefas, ele pode nπo ser seguro para a decolagem normal.
+Exemplos incluem o controlador BSCU fornecendo comando de freio durante uma decolagem normal (o que Θ inseguro), ou nπo fornecendo o comando durante o pouso quando deveria.
 
-O texto menciona como os controllers (pilot e airline) interagem entre si e como isso pode afetar a seguranτa do controle. AlΘm disso, o autor destaca que a falta de comunicaτπo eficaz entre os controladores pode levar a erros graves em situaτ⌡es crφticas.
+ReferΩncias a perigos especφficos devem ser documentadas para cada UCA, garantindo rastreabilidade entre a aτπo insegura e os perigos que ela pode causar.
 
-**ReferΩncias**
+Em resumo, uma Unsafe Control Action Θ uma aτπo de controle que, sob certas condiτ⌡es e contexto, pode causar um perigo ao sistema, e sua identificaτπo Θ essencial para a anßlise e mitigaτπo de riscos no STPA.
 
-Fonte 1: STPA_Handbook.pdf | seτπo: 9
-Table 2 | pßginas: 35-36 | parent_id: stpa_p035_036
+---
 
-[Figure G.2: Model updating and human controllers]
-
-Fonte 2: STPA_Handbook.pdf | seτπo: Unsafe Control Actions | pßginas: 43-44 | parent_id: stpa_p043_044
-
-Figura 2.17: Sucessos e erros de controle
-
-Fonte 3: STPA_Handbook.pdf | seτπo: Unsafe Control Actions | pßginas: 185-186 | parent_id: stpa_p185_186
-
-Figure G.2
+ReferΩncias:  
+- STPA_Handbook.pdf, seτπo 9, Table 2, pßginas 35-36  
+- STPA_Handbook.pdf, seτπo Unsafe Control Actions, pßginas 39-40  
+- STPA_Handbook.pdf, seτπo Unsafe Control Actions, pßginas 45-46
 Sources:
  - 9
 Table 2 35 36
- - Unsafe Control Actions 43 44
- - Unsafe Control Actions 185 186
-ponytail: OpenAI embed failed (Connection error.); using local MiniLM for dev only.
-ponytail: OpenAI chat failed (Connection error.); using Ollama llama3.2:1b.
+ - Unsafe Control Actions 39 40
+ - Unsafe Control Actions 45 46
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
 
 === q03 What is a control structure?
-A **control structure** Θ uma estrutura funcional que organiza e coordena os processos de controle de um sistema. Define o comportamento do sistema como um todo, incluindo a detecτπo e a prevenτπo de falhas.
+Uma estrutura de controle (control structure) Θ um modelo funcional hierßrquico que representa os elementos e as relaτ⌡es de controle dentro de um sistema. Ela contΘm pelo menos cinco tipos de elementos: controladores, aτ⌡es de controle, feedback, outras entradas e saφdas que nπo sπo controle nem feedback, e processos controlados. A estrutura de controle enfatiza as relaτ⌡es funcionais e interaτ⌡es funcionais, mostrando como controladores em diferentes nφveis hierßrquicos enviam aτ⌡es de controle para processos controlados e recebem feedback destes processos.
 
-╔ importante destacar que:
+A estrutura Θ representada verticalmente, onde o eixo vertical indica o controle e a autoridade dentro do sistema, com controladores de alto nφvel no topo e entidades de nφvel mais baixo na base. As setas para baixo representam aτ⌡es de controle (comandos) e as setas para cima representam feedback. A estrutura nπo Θ um modelo fφsico, nem um modelo executßvel ou de simulaτπo, mas um modelo funcional que abstrai detalhes fφsicos e de implementaτπo para focar nas informaτ⌡es funcionais que sπo enviadas e recebidas.
 
-- A estrutura controlada nπo Θ uma modelagem fφsica ou simulacional, mas sim uma representaτπo funcional da hierarquia de controle.
-- O control structure contΘm elementos fundamentais, como controles, aτ⌡es de controle, feedback e processos controlados.
-- A hierarquia de controle pode variar de forma linear (como em um sistema de controle linear) ou nπo linear, com mecanismos de cooperaτπo e comunicaτπo entre os controles.
+AlΘm disso, a estrutura de controle nπo assume que as aτ⌡es de controle serπo sempre obedecidas, nem que o feedback serß sempre enviado ou preciso. Ela serve para identificar potenciais falhas, lacunas e problemas no sistema, como falta de feedback, conflitos entre controladores, ou aτ⌡es de controle inseguras.
 
-Em resumo:
+A estrutura pode variar em complexidade e forma, podendo ser linear, com m·ltiplos controladores no mesmo nφvel, ou com controladores que se comunicam horizontalmente. Ela Θ usada para entender quem controla quem, quais sπo as responsabilidades e como as decis⌡es sπo tomadas para alcanτar os objetivos do sistema.
 
-* O control structure Θ uma estrutura funcional que organiza e coordena os processos de controle de um sistema.
-* ContΘm elementos fundamentais como controles, aτ⌡es de controle, feedback e processos controlados.
-* A hierarquia de controle pode variar de forma linear ou nπo linear.
+Em resumo, a estrutura de controle Θ um modelo funcional hierßrquico que representa controladores, aτ⌡es de controle, feedback e processos controlados, enfatizando as relaτ⌡es de controle e autoridade para analisar e garantir a seguranτa do sistema.
 
-ReferΩncias:
-
-[Fonte 1: STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 21-22 | parent_id: stpa_p021_022]
-[Fonte 2: STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 31-32 | parent_id: stpa_p031_032]
-[Fonte 3: STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 25-26 | parent_id: stpa_p025_026]
+ReferΩncias:  
+STPA_Handbook.pdf, seτπo "Control Structure", pßginas 25-26, 31-32.
 Sources:
- - Control Structure 21 22
  - Control Structure 31 32
+ - Unsafe Control Actions 33 34
  - Control Structure 25 26
-ponytail: OpenAI embed failed (Connection error.); using local MiniLM for dev only.
-ponytail: OpenAI chat failed (Connection error.); using Ollama llama3.2:1b.
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
 
 === q04 How are causal scenarios used in STPA?
-CAUSAL SCENARIOS USados em STPA
+Os cenßrios causais sπo usados no STPA para identificar como o processo controlado pode entrar em um estado perigoso, partindo do pr≤prio perigo e determinando quais condiτ⌡es no processo controlado podem contribuir para esse estado. Eles sπo gerados a partir de um modelo de controle especφfico do sistema em anßlise, considerando componentes genΘricos que correspondem αs partes do modelo do sistema. 
 
-STPA Θ uma tΘcnica de anßlise de riscos que utiliza causalidades para identificar possφveis causas de acidentes e consequΩncias negativas. As causalidades sπo descritas como acontecimentos ou eventos que podem levar a um acidente.
+Esses cenßrios incluem falhas ou degradaτπo dos componentes do processo controlado, perturbaτ⌡es externas, entradas diretas ao processo controlado e controladores do processo (humanos e automatizados). O objetivo nπo Θ realizar uma anßlise de falhas tradicional (como FMEA), mas sim identificar as condiτ⌡es que podem levar ao estado perigoso. Por exemplo, uma falha nos dispositivos de controle de pitch de uma aeronave pode ser um cenßrio causal para a perda de controle de pitch.
 
-As seguintes caracterφsticas sπo usadas em STPA:
+AlΘm disso, os cenßrios causais gerados durante a anßlise STPA podem ser usados para criar requisitos de teste e programas de avaliaτπo, planejamento de seguranτa em testes de voo, requisitos operacionais e controles para operadores e mantenedores. Eles tambΘm ajudam a identificar indicadores precoces de aumento de risco e a garantir que os controles operacionais sejam adequados para mitigar os perigos que nπo podem ser eliminados no projeto do sistema.
 
-1.  **Inaugurar com anßlise de componentes**: Em vez de analisar apenas a complexidade do sistema, STPA comeτa analisando os componentes individuais e identificando suas possφveis falhas ou defeitos.
-2.  **Identificar requisitos de seguranτa**: As causalidades sπo usadas para identificar as necessidades de seguranτa e limites que devem ser atingidos no sistema.
-3.  **Integrar software e humanos**: STPA inclui tanto software quanto operadores humanos na anßlise, garantindo que todas as possφveis causas sejam consideradas.
-4.  **Documentaτπo dos processos de seguranτa**: Os resultados da anßlise sπo documentados, o que ajuda a manter o sistema seguro e ao identificar ßreas para melhoria.
-
-ReferΩncias:
-
--   [STPA_Handbook.pdf | seτπo: Causality | pßginas: 1-3] - Introduτπo α causalidades em STPA
--   [STPA_Handbook.pdf | seτπo: Control Structure | pßginas: 99-100] - Anßlise de controladores de processos e controles.
+ReferΩncias:  
+- STPA_Handbook.pdf, seτπo "Controlled Process", pßginas 179-180  
+- STPA_Handbook.pdf, seτπo "Unsafe Control Actions", pßginas 69-70
 Sources:
- - Causal Scenarios 3 4
- - Control Structure 99 100
  - 179
 Controlled Process 179 180
-ponytail: OpenAI embed failed (Connection error.); using local MiniLM for dev only.
+ - Causal Scenarios 3 4
+ - Unsafe Control Actions 69 70
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
+OpenAI embed failed (Connection error.); using OpenRouter (openai/text-embedding-3-small).
+OpenAI chat failed (Connection error.); using OpenRouter (openai/gpt-4.1-mini).
 
 === q05 What is the capital of France?
 Informaτπo nπo encontrada no STPA Handbook recuperado.
 Sources:
- - Control Structure 95 96
- - Control Structure 31 32
- - Losses 175 176
+ - 1 The pilot of a TCAS-equipped aircraft must have the option to switch to the Traffic-Advisor 111 112
+ - 1
+B                                             A 171 172
+ - Unknown section 169 170

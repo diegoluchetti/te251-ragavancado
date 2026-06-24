@@ -21,12 +21,12 @@
 - **Decisão:** `judge_retrieval()` no mesmo módulo, sem `app/crag.py` separado (ponytail).
 - **Status:** aceito.
 
-## DD-005 — Obsidian mínimo
+## DD-005 — Vault Obsidian
 
-- **Decisão:** `index.md`, `rtm.md`, `log.md`, `design-decisions.md`, `development/prompts/` — sem árvore verification/ separada.
+- **Decisão:** Vault em `rag-avancado/` com `index`, `requirements`, `architecture`, `evidence`, `runbook`, `rtm`, `design-decisions`, `log`, `history/`, `development/`.
 - **Status:** aceito.
 
 ## DD-006 — Fallback offline (dev only)
 
-- **Decisão:** `ALLOW_OFFLINE_EMBED=1` → MiniLM local + Ollama chat quando OpenAI inacessível; produção usa `text-embedding-3-small` + chat OpenAI sem flag.
+- **Decisão:** Produção: OpenAI (`text-embedding-3-small` + chat OpenAI) com chave em `rag-avancado/.env` (`OPEN_AI_API_KEY`). Se OpenAI inacessível, fallback OpenRouter (`OPENROUTER_API_KEY`, modelos `openai/*`). Dev offline opcional: `ALLOW_OFFLINE_EMBED=1` → BGE-M3 + Ollama.
 - **Status:** aceito.

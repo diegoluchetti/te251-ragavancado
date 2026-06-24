@@ -2,67 +2,102 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import urllib.request
 from pathlib import Path
 from typing import Any
 
 import chromadb
-from dotenv import load_dotenv
 from openai import OpenAI
 
-load_dotenv()
+from app.env_config import load_project_env
+
+load_project_env()
 
 EMBED_MODEL = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
 CHAT_MODEL = os.getenv("OPENAI_CHAT_MODEL", "gpt-4.1-mini")
+OPENROUTER_BASE = os.getenv("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+OPENROUTER_CHAT_MODEL = os.getenv("OPENROUTER_CHAT_MODEL", "openai/gpt-4.1-mini")
+OPENROUTER_EMBED_MODEL = os.getenv("OPENROUTER_EMBED_MODEL", "openai/text-embedding-3-small")
 CHROMA_PATH = os.getenv("CHROMA_PATH", "data/index/chroma")
 COLLECTION_NAME = os.getenv("COLLECTION_NAME", "stpa_handbook_children")
 MAX_PARENTS = int(os.getenv("MAX_PARENTS", "3"))
 PARENTS_PATH = Path("data/parsed/parents.jsonl")
 REFUSAL_MESSAGE = "Informação não encontrada no STPA Handbook recuperado."
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "llama3.2:1b")
+OLLAMA_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "gemma4:latest")
+OFFLINE_EMBED_MODEL = os.getenv("OFFLINE_EMBED_MODEL", "BAAI/bge-m3")
 
-_client: OpenAI | None = None
-_offline_model = None
+_openai_client: OpenAI | None = None
+_openrouter_client: OpenAI | None = None
+_offline_embedder = None
 
 
 def _allow_offline() -> bool:
     return os.getenv("ALLOW_OFFLINE_EMBED", "").lower() in ("1", "true", "yes")
 
 
-def _get_client() -> OpenAI:
-    global _client
-    if _client is None:
+def _get_openai_client() -> OpenAI:
+    global _openai_client
+    if _openai_client is None:
         key = os.getenv("OPENAI_API_KEY")
         if not key:
-            raise RuntimeError("OPENAI_API_KEY is missing. Check your .env file.")
-        _client = OpenAI(api_key=key)
-    return _client
+            raise RuntimeError("OPENAI_API_KEY is missing. Check repo root .env or lab .env.")
+        _openai_client = OpenAI(api_key=key)
+    return _openai_client
 
 
-def _chat_complete(messages: list[dict[str, str]]) -> str:
+def _get_openrouter_client() -> OpenAI:
+    global _openrouter_client
+    if _openrouter_client is None:
+        key = os.getenv("OPENROUTER_API_KEY")
+        if not key:
+            raise RuntimeError("OPENROUTER_API_KEY is missing.")
+        _openrouter_client = OpenAI(base_url=OPENROUTER_BASE, api_key=key)
+    return _openrouter_client
+
+
+def _ollama_chat(messages: list[dict[str, str]], num_predict: int = 1024) -> str:
+    payload = json.dumps(
+        {
+            "model": OLLAMA_MODEL,
+            "messages": messages,
+            "stream": False,
+            "options": {"temperature": 0, "num_predict": num_predict},
+        }
+    ).encode("utf-8")
+    req = urllib.request.Request(
+        f"{OLLAMA_URL}/api/chat",
+        data=payload,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=600) as resp:
+        data = json.loads(resp.read().decode("utf-8"))
+    return data.get("message", {}).get("content", "")
+
+
+def _chat_complete(messages: list[dict[str, str]], *, num_predict: int = 1024) -> str:
+    if _allow_offline():
+        return _ollama_chat(messages, num_predict=num_predict)
     try:
-        response = _get_client().chat.completions.create(
+        response = _get_openai_client().chat.completions.create(
             model=CHAT_MODEL,
             temperature=0,
+            max_tokens=num_predict,
             messages=messages,
         )
         return response.choices[0].message.content or ""
     except Exception as exc:
-        if not _allow_offline():
+        if not os.getenv("OPENROUTER_API_KEY"):
             raise
-        payload = json.dumps({"model": OLLAMA_MODEL, "messages": messages, "stream": False}).encode("utf-8")
-        req = urllib.request.Request(
-            f"{OLLAMA_URL}/api/chat",
-            data=payload,
-            headers={"Content-Type": "application/json"},
-            method="POST",
+        print(f"OpenAI chat failed ({exc}); using OpenRouter ({OPENROUTER_CHAT_MODEL}).")
+        response = _get_openrouter_client().chat.completions.create(
+            model=OPENROUTER_CHAT_MODEL,
+            temperature=0,
+            max_tokens=num_predict,
+            messages=messages,
         )
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-        print(f"ponytail: OpenAI chat failed ({exc}); using Ollama {OLLAMA_MODEL}.")
-        return data.get("message", {}).get("content", "")
+        return response.choices[0].message.content or ""
 
 
 def load_parents() -> dict[str, dict[str, Any]]:
@@ -82,24 +117,40 @@ def get_collection():
 
 
 def _offline_embed(texts: list[str]) -> list[list[float]]:
-    global _offline_model
-    if _offline_model is None:
+    global _offline_embedder
+    if _offline_embedder is None:
         from sentence_transformers import SentenceTransformer
 
-        _offline_model = SentenceTransformer("all-MiniLM-L6-v2")
-    return _offline_model.encode(texts, normalize_embeddings=True).tolist()
+        print(f"offline: loading embedder {OFFLINE_EMBED_MODEL}")
+        _offline_embedder = SentenceTransformer(OFFLINE_EMBED_MODEL)
+    batch_size = int(os.getenv("OFFLINE_EMBED_BATCH_SIZE", "8"))
+    return _offline_embedder.encode(
+        texts,
+        normalize_embeddings=True,
+        batch_size=batch_size,
+        show_progress_bar=len(texts) > 32,
+    ).tolist()
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
     cleaned = [t.replace("\n", " ").strip() for t in texts]
+    if _allow_offline():
+        return _offline_embed(cleaned)
     try:
-        response = _get_client().embeddings.create(model=EMBED_MODEL, input=cleaned)
+        response = _get_openai_client().embeddings.create(model=EMBED_MODEL, input=cleaned)
         return [item.embedding for item in sorted(response.data, key=lambda d: d.index)]
     except Exception as exc:
-        if not _allow_offline():
-            raise
-        print(f"ponytail: OpenAI embed failed ({exc}); using local MiniLM for dev only.")
-        return _offline_embed(cleaned)
+        if os.getenv("OPENROUTER_API_KEY"):
+            print(f"OpenAI embed failed ({exc}); using OpenRouter ({OPENROUTER_EMBED_MODEL}).")
+            response = _get_openrouter_client().embeddings.create(
+                model=OPENROUTER_EMBED_MODEL,
+                input=cleaned,
+            )
+            return [item.embedding for item in sorted(response.data, key=lambda d: d.index)]
+        if _allow_offline():
+            print(f"OpenAI embed failed ({exc}); falling back to {OFFLINE_EMBED_MODEL}.")
+            return _offline_embed(cleaned)
+        raise RuntimeError(f"OpenAI embed failed and no fallback is configured: {exc}") from exc
 
 
 def embed_query(query: str) -> list[float]:
@@ -155,38 +206,19 @@ def format_context(hits: list[dict[str, Any]]) -> str:
     return "\n\n---\n\n".join(blocks)
 
 
-_STOPWORDS = {
-    "what", "when", "where", "which", "that", "this", "with", "from", "have",
-    "does", "about", "would", "could", "should", "there", "their", "they",
-    "them", "then", "than", "into", "your", "will", "also", "been", "were",
-}
-
-
-def _lexical_overlap(question: str, context: str) -> int:
-    words = {w for w in re.findall(r"[a-z]{4,}", question.lower()) if w not in _STOPWORDS}
-    if not words:
-        return 0
-    ctx = context.lower()
-    return sum(1 for w in words if w in ctx)
-
-
 def judge_retrieval(question: str, context: str) -> str:
     if not context.strip():
         return "incorrect"
-    # ponytail: skip LLM judge when offline; system prompt + empty hits handle refusal
-    if _allow_offline():
-        return "correct"
     prompt = (
         "Classifique a recuperação.\n"
         "Retorne apenas uma palavra: correct, ambiguous ou incorrect.\n"
         f"Pergunta: {question}\n"
         f"Contexto: {context[:6000]}"
     )
-    verdict = _chat_complete([{"role": "user", "content": prompt}]).strip().lower()
-    if verdict.startswith("correct"):
-        return "correct"
-    if verdict.startswith("ambiguous"):
-        return "ambiguous"
+    verdict = _chat_complete([{"role": "user", "content": prompt}], num_predict=32).strip().lower()
+    for token in verdict.replace("*", " ").replace(",", " ").split():
+        if token in ("correct", "ambiguous", "incorrect"):
+            return token
     return "incorrect"
 
 
@@ -196,10 +228,6 @@ def answer_question(question: str, chunk_type: str | None = None) -> dict[str, A
         return {"answer": REFUSAL_MESSAGE, "sources": [], "retrieval_verdict": "incorrect"}
 
     context = format_context(hits)
-    weak_retrieval = min(h["distance"] for h in hits) > 0.5
-    if _allow_offline() and (_lexical_overlap(question, context) == 0 or weak_retrieval):
-        return {"answer": REFUSAL_MESSAGE, "sources": hits, "retrieval_verdict": "incorrect"}
-
     verdict = judge_retrieval(question, context)
 
     if verdict == "incorrect":
@@ -220,6 +248,8 @@ def answer_question(question: str, chunk_type: str | None = None) -> dict[str, A
     answer = _chat_complete(
         [{"role": "system", "content": system}, {"role": "user", "content": user}]
     )
+    if REFUSAL_MESSAGE.lower() in (answer or "").lower():
+        return {"answer": REFUSAL_MESSAGE, "sources": hits, "retrieval_verdict": verdict}
     return {
         "answer": answer or REFUSAL_MESSAGE,
         "sources": hits,

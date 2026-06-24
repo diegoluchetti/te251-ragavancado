@@ -12,9 +12,8 @@
 ## [2026-06-24] wave-2 | Index + RAG core
 
 - `03_embed_index.py`: Chroma collection `stpa_handbook_children` count=321.
-- Nota: OpenAI API bloqueada neste host (WinError 10013); `ALLOW_OFFLINE_EMBED=1` usa MiniLM + Ollama para dev.
-- `00_doctor.py`: OK (PDF, packages, .env).
-- Smoke test: 3 parents para UCA (pp. 13-14, 23-26).
+- `00_doctor.py`: OK (PDF, packages, env).
+- Smoke test: 3 parents para UCA.
 
 ## [2026-06-24] wave-3 | UI + eval + evidências
 
@@ -25,5 +24,25 @@
 
 ## [2026-06-24] wave-4 | CRAG inline
 
-- `judge_retrieval()` em `app/rag_core.py` (OpenAI path; skip em offline dev).
-- Guarda weak-retrieval (distance > 0.5) + overlap lexical para recusa off-topic.
+- `judge_retrieval()` em `app/rag_core.py` — classifica correct/ambiguous/incorrect antes da geração.
+
+## [2026-06-24] wave-5 | OpenAI + OpenRouter (produção)
+
+- Chave OpenAI em `rag-avancado/.env` (`OPEN_AI_API_KEY`); `app/env_config.py` carrega root antes de lab overrides.
+- Fallback OpenRouter em `rag_core.py` (chat + embed) quando OpenAI falha e `OPENROUTER_API_KEY` está definida.
+- `ALLOW_OFFLINE_EMBED=0` para teste real; offline (BGE-M3 + Ollama) só com flag explícita.
+- **Bloqueio:** `api.openai.com` inacessível neste host (WinError 10013); `openrouter.ai` OK. Re-index/eval/screenshots pendentes de `OPENROUTER_API_KEY` no root `.env`.
+
+## [2026-06-24] wave-5b | OpenRouter test + evidências (concluído)
+
+- `OPENROUTER_API_KEY` em `rag-avancado/.env`; fallback chat+embed via OpenRouter (`openai/gpt-4.1-mini`, `openai/text-embedding-3-small`).
+- Fix `max_tokens` no chat OpenRouter (evita erro 402 por créditos).
+- Re-index Chroma: 321 children, dim=1536 (OpenRouter embed).
+- Eval q01–q05 OK; q05 recusa off-topic corretamente → `eval_output.txt`.
+- Screenshots atualizados: `development/evidence/in-scope.png`, `out-of-scope.png`.
+
+## [2026-06-24] wave-6 | Vault + repo polish
+
+- Vault: `requirements`, `architecture`, `evidence`, `runbook`; RTM e index atualizados.
+- Removidos duplicatas (Welcome.md, plan copies).
+- README principal reescrito; `.env.example` no root.
