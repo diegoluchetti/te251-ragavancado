@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+lab_stpa_rag_chatbot/.venv/
+lab_stpa_rag_chatbot/data/index/chroma/
+lab_stpa_rag_chatbot/eval_output.txt
+docs/_extract_tutorial.txt
+*.pyc

@@ -1,0 +1,177 @@
+
+
+===== PAGE 1 =====
+NANCY G. LEVESON
+       JOHN P. THOMAS
+
+       MARCH 2018
+
+
+
+  This handbook is intended for those interested in using STPA on real systems. It is not meant
+  to introduce the theoretical foundation, which is described elsewhere. Here our goal is to
+  provide direction for those starting out with STPA on a real project or to supplement other
+  materials in a class teaching STPA.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+COPYRIGHT © 2018 BY NANCY LEVESON AND JOHN THOMAS.  ALL RIGHTS RESERVED. THE UNALTERED VERSION OF
+THIS HANDBOOK AND ITS CONTENTS MAY BE USED FOR NON-PROFIT CLASSES AND OTHER NON-COMMERCIAL
+PURPOSES BUT MAY NOT BE SOLD.
+                                                     1
+
+===== PAGE 2 =====
+TABLE OF CONTENTS
+
+Preface                                                                                                  3
+1.   Introduction                                                                                        4
+2.   How to do Basic STPA                                                                                14
+3.   Integrating STPA into Your System Engineering Process                                             54
+4.   Workplace Safety                                                                                  72
+5.   Organizational and Social Analysis                                                                86
+6.   Identifying Leading Indicators of Risk                                                           101
+7.   Designing an Effective Safety Management System                                                  116
+8.   Integrating STPA into a Large Organization                                                       142
+Appendix A:  Examples of hazards                                                                      146
+Appendix B:  Examples of control structures                                                           148
+Appendix C:  Examples of UCA tables                                                                   156
+Appendix D:  Guidelines for designing and evaluating a safety                                         163
+                        management system
+Appendix E:  More about why decomposition does not work for                                           167
+                        complex, computer-based systems
+Appendix F:  Basic engineering and system engineering concepts for                                    169
+                       non- engineers
+Appendix G:  A new model to assist in causal scenario generation                                      178
+
+
+Acknowledgements:  Many people provided comments on early drafts of this handbook. We want to
+thank them for their help, including (alphabetically) Matthew Boesch (Ford), Diogo Silva Castilho (MIT
+and Brazilian Air Force), Christopher Degni (Akamai), Mikela Chatzimichailidou (Imperial College),
+Rashmi Hegde (Ford), Stephen Johnson (Fluor), Ioana Koglbauer (University of Graz), Galvani Lacerda
+(Embraer), Simon Lucchini (Fluor), Shem Malquist (FedEx), Maj. Dan Montes (U.S. Air Force), Sandro
+Nuesch (Ford), Felipe Oliveira (Embraer), Todd Pawlicki (U.C. San Diego Medical Center), Kep Peterson
+(Akamai), Martin Rezjek (Zurich University of 
+
+===== PAGE 3 =====
+Preface
+
+    This handbook is intended to assist those who want to start using STPA or who want to try using it for
+more than simple hazard analysis.  As such, we tried to provide examples and have included more
+examples in the appendices. An appendix is also provided to explain some basic engineering concepts
+needed to understand and use the handbook to those who are not trained in engineering. Other new
+concepts are introduced in the main chapters of the handbook itself.
+    The introduction provides a brief introduction to STAMP, the accident causality model underlying
+STPA. It also shows examples accidents and explains why STPA is needed for today’s complex, software-
+intensive systems.
+    The next chapter is an in-depth tutorial on how to perform STPA. It will be useful for the beginner as
+well as for those who have tried STPA and want to improve their results.
+    The rest of the handbook describes uses for STPA, including how to integrate it into a standard
+system engineering process, its use in workplace safety, using STPA for organizational analysis and
+emergent system properties other than safety, using STPA to provide leading indicators of increasing
+risk, designing an effective safety management system, and cyber security.
+    The final chapter describes what we have learned about integrating STPA into a large organization
+and how to structure the STPA process to make it most effective but also least disruptive to the
+enterprise.
+    Our goal in writing this handbook is to provide a guide for those who are actually using STPA rather
+than writing an academic primer. Therefore, we have omitted references to other work, etc. There are
+many other sources that provide this type of information but few that focus on instruction and ways to
+use STPA. To find many examples, published papers, theses, etc., see http://psas.scripts.mit.edu/home/
+    We encourage users of the handbook to work on examples relevant to their industry as they go
+through the handbook.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                                                  3
+
+===== PAGE 10 =====
+A more complex example in aircraft avionics systems can be found in Appendix A. In addition, Dr.
+Ioana Koglbauer at the University of Graz (Austria) provided an example that emphasizes the usefulness
+of a systems approach. A certified fixed-base flight simulator at their university has the same production
+cockpit components (e.g. rudder-pedals) as the certified aircraft, but the pedals in the simulator often
+break and must be replaced. If you try to understand why and solve the problem at the component
+level, you could blame and punish the pilot who produced the damage, train the pilot on how to handle
+the simulator, or invest in improving the pedals. If you look at interactions among components (people,
+hardware, software), and try to understand why the pilots use the pedals differently in the simulator
+than in a real aircraft , you come to a different problem definition and solution. It turns out that when
+the pilots brake in the simulator, the simulator software is not programmed to show the typical small
+pitch down movement when the aircraft comes to a stop. This movement can also be felt when parking
+a car. In the absence of this feedback in the aircraft simulator, the pilots apply the brakes longer and
+stronger than needed.  For this reason, the pedals break in the simulator, but not in the real aircraft. The
+best solution is to improve the software and give pilots the feedback they need.
+    In all of these cases (and in hundreds of others), the problems did not stem from individual
+component failures but from flaws in the system engineering process that resulted in flawed system
+designs. Decompositional analysis cannot identify these causes of accidents including human error,
+software requirements errors, and system design flaws. We need something different. That different
+theoretical foundation, which underlies STPA, is called System Theory.
+
+System Theory
+    As stated above, system theory as used in engineering was created after World War II to deal with
+the increased complexity of the systems being built after the war.3 It was also created for biology in
+order to successfully understand the complexity of biological systems. In these systems, separation and
+analysis of separate, interacting components (subsystems) distorts the results for the system as a whole
+because the component behaviors are coupled in non-obvious ways.  The first engineering uses of these
+new ideas were in the missile and early warning systems of the 1950s and 1960s.
+    So
+
+===== PAGE 20 =====
+What should I look for when reviewing hazards?
+
+                  Tips to prevent common mistakes when identifying hazards
+                -    Hazards should not refer to individual components of the system
+                -    All hazards should refer to the overall system and system state
+                -    Hazards should refer to factors that can be controlled or managed by the
+                     system designers and operators
+                -    All hazards should describe system-level conditions to be prevented
+                -    The number of hazards should be relatively small, usually no more than 7
+                     to 10
+                -    Hazards should not include ambiguous or recursive words like “unsafe”,
+                     “unintended”, “accidental”, etc.
+
+    Note that STPA is an iterative method and the hazards need not be set in stone at this point. Later
+STPA steps may uncover new hazards and this list can be revisited and revised as needed.
+
+Defining system-level constraints
+          Definition: A system-level constraint specifies system conditions or behaviors that need to be
+          satisfied to prevent hazards (and ultimately prevent losses)
+    Once the system-level hazards are identified, it is straightforward to identify system-level constraints
+that must be enforced: simply invert the condition.
+          <Hazard>            = <System> & <Unsafe Condition> & <Link to Losses>
+          <Safety Constraint> = <System> & <Condition to Enforce> & <Link to Hazards>
+          H-1:  Aircraft   violate minimum separation standards [L-1, L-2, L-4, L-5]
+          SC-1: Aircraft   must satisfy minimum separation standards from other aircraft and objects [H-1]
+          H-2:  Aircraft   airframe integrity is lost [L-1, L-2, L-4, L-5]
+          SC-2: Aircraft   airframe integrity must be maintained under worst-case conditions [H-2]
+    Each constraint can be traceable to one or more hazards, and each hazard is traceable to one or
+more losses. In general, the traceability need not be one-to-one; a single constraint might be used to
+prevent more than one hazard, multiple constraints may be related to a single hazard, and each hazard
+could lead to one or more losses.
+    Constraints can also define how the system must minimize losses in case the hazards do occur. For
+example, if aircraft do violate minimum separation then the violation must be detected and measures
+must be taken to keep the aircraft from colliding. If a chemical 

@@ -1,0 +1,5 @@
+{"id":"q01","question":"What is the purpose of STPA?","expected_contains":["hazard","control"]}
+{"id":"q02","question":"What is an unsafe control action?","expected_contains":["control action"]}
+{"id":"q03","question":"What is a control structure?","expected_contains":["controller","process"]}
+{"id":"q04","question":"How are causal scenarios used in STPA?","expected_contains":["scenario"]}
+{"id":"q05","question":"What is the capital of France?","expected_contains":[]}

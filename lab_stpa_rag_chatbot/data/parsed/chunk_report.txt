@@ -1,0 +1,3 @@
+parents=89
+children=321
+chunk_types={'paragraph': 248, 'figure_caption': 72, 'table': 1}
